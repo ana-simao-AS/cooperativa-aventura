@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooperativa Aventura - Jogo Educativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --secondary-color: #81C784;
+            --accent-color: #FFC107;
+            --danger-color: #f44336;
+            --background-color: #f0f9f0;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        .game-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .game-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header p {
+            margin: 10px 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-menu {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-menu button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .game-menu button:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            color: white;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .welcome-content {
+            text-align: center;
+            max-width: 800px;
+            animation: fadeIn 1s ease;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-content h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .welcome-content p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .welcome-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .welcome-button {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .welcome-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .welcome-button.secondary {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .game-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.3em;
+        }
+
+        .feature-card p {
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .game-board {
+            width: 100%;
+            height: 100%;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            grid-template-rows: repeat(11, 1fr);
+            gap: 2px;
+            padding: 10px;
+            border: 2px solid var(--primary-color);
+        }
+
+        .board-cell {
+            background: var(--card-background);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            min-height: 70px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .board-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .board-cell.corner {
+            background: var(--secondary-color);
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .board-cell.project {
+            background: var(--accent-color);
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .board-cell.event {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .board-cell.area {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .board-cell.recursos {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .board-cell.desafio {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .player {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 100;
+            border: 2px solid var(--primary-color);
+        }
+
+        .player:hover {
+            transform: scale(1.1);
+            z-index: 101;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .player-info-panel {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            height: 100%;
+            position: sticky;
+            top: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid var(--secondary-color);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-card.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .player-card h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-resources {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 1.1em;
+            justify-content: space-between;
+        }
+
+        .resource-item span {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .game-controls {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .dice {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dice:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .current-player {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .player-list {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .player-token {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .player-token:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-game {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-game:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .share-resources-modal {
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .share-option {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .share-option:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .resource-share-input {
+            width: 80px;
+            padding: 8px;
+            margin: 0 10px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .resource-share-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+            outline: none;
+        }
+
+        .share-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .share-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .resource-item span {
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+
+            .game-board {
+                height: 600px;
+            }
+
+            .player-info-panel, .game-controls {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                height: 400px;
+            }
+
+            .board-cell {
+                min-height: 40px;
+                font-size: 0.7em;
+            }
+
+            .player {
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+            }
+        }
+
+        .atividade-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .atividade-item {
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .atividade-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-icone {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .item-nome {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .atividade-progresso {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 15px 0;
+            color: var(--primary-color);
+        }
+
+        /* Estilos para as tarefas */
+        .quiz-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .quiz-pergunta {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .quiz-opcoes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-opcoes button {
+            padding: 15px;
+            border: 2px solid var(--secondary-color);
+            background: white;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .quiz-opcoes button:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .puzzle-container {
+            padding: 20px;
+        }
+
+        .puzzle-categorias {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-categoria {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px dashed var(--secondary-color);
+            min-height: 100px;
+        }
+
+        .puzzle-categoria h5 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .puzzle-area {
+            min-height: 60px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .puzzle-itens {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .puzzle-item {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 5px;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .puzzle-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .puzzle-area.drag-over {
+            background: var(--secondary-color);
+            opacity: 0.2;
+        }
+
+        .sequencia-container {
+            padding: 20px;
+        }
+
+        .sequencia-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+
+        .sequencia-item {
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 5px;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .sequencia-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sequencia-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .sequencia-item.correct {
+            border-color: var(--primary-color);
+            background: #e8f5e9;
+        }
+
+        .sequencia-item.incorrect {
+            border-color: var(--danger-color);
+            background: #ffebee;
+        }
+
+        .celebration-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            position: relative;
+            animation: scaleIn 0.5s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 20px;
+        }
+
+        .celebration-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .celebration-close:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.95), rgba(129, 199, 132, 0.95));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: celebrationConfetti 20s linear infinite;
+            background-image: url('data:image/svg+xml,<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.2)"/></svg>');
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .celebration-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .celebration-title {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .celebration-message {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .celebration-ribbon {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .celebration-ribbon:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .celebration-ribbon::before,
+        .celebration-ribbon::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+        }
+
+        .celebration-ribbon::before {
+            left: -10px;
+        }
+
+        .celebration-ribbon::after {
+            right: -10px;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .celebration-stats {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid var(--primary-color);
+        }
+
+        .celebration-stats h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .celebration-stats .resource-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .celebration-stats .resource-item:hover {
+            transform: translateX(5px);
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        @keyframes celebrationConfetti {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        .btn-game.mt-4 {
+            margin-top: 2rem;
+            font-size: 1.2em;
+            padding: 15px 30px;
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-game.mt-4:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Estilos para o jogo da memória */
+        .memoria-container {
+            padding: 20px;
+        }
+
+        .memoria-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .memoria-card {
+            aspect-ratio: 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .memoria-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .memoria-card.flipped .memoria-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memoria-card-front,
+        .memoria-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .memoria-card-back {
+            transform: rotateY(180deg);
+        }
+
+        .memoria-imagem {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .memoria-nome {
+            font-size: 0.8em;
+            color: var(--text-color);
+        }
+
+        .memoria-card.matched {
+            border-color: var(--primary-color);
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilos para o jogo de conexões */
+        .conexoes-container {
+            padding: 20px;
+        }
+
+        .conexoes-colunas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .conexoes-coluna {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .conexao-item,
+        .conexao-slot {
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .conexao-item {
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .conexao-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .conexao-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .conexao-slot {
+            border-style: dashed;
+        }
+
+        .conexao-slot.drag-over {
+            background: var(--secondary-color);
+            opacity: 0.2;
+        }
+
+        .conexao-slot.correto {
+            border-color: var(--primary-color);
+            background: #e8f5e9;
+        }
+
+        .conexao-slot.incorreto {
+            border-color: var(--danger-color);
+            background: #ffebee;
+        }
+
+        .recursos-necessarios {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .share-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .share-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .resource-item span {
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .resource-share-input {
+            width: 80px;
+            padding: 8px;
+            margin: 0 10px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .resource-share-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-content">
+            <h1>🌟 Cooperativa Aventura 🌟</h1>
+            <p>Bem-vindo ao jogo educativo que vai te ensinar sobre cooperação, sustentabilidade e trabalho em equipa! Junta-te a esta aventura emocionante e constrói uma comunidade melhor.</p>
+            
+            <div class="welcome-buttons">
+                <button class="welcome-button" onclick="iniciarJogo()">Começar Jogo</button>
+                <button class="welcome-button secondary" onclick="mostrarInstrucoes()">Instruções</button>
+            </div>
+
+            <div class="game-features">
+                <div class="feature-card">
+                    <i>🎮</i>
+                    <h3>Jogabilidade Divertida</h3>
+                    <p>Um jogo de tabuleiro interativo com desafios emocionantes</p>
+                </div>
+                <div class="feature-card">
+                    <i>🤝</i>
+                    <h3>Cooperação</h3>
+                    <p>Aprende a trabalhar em equipa e partilhar recursos</p>
+                </div>
+                <div class="feature-card">
+                    <i>🌱</i>
+                    <h3>Sustentabilidade</h3>
+                    <p>Descobre como construir uma comunidade sustentável</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-container" style="display: none;">
+        <div class="game-header animate__animated animate__fadeIn">
+            <h1>🌟 Cooperativa Aventura 🌟</h1>
+            <p>Vem construir a tua comunidade!</p>
+        </div>
+
+        <div class="player-info-panel">
+            <div id="playerList"></div>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <!-- Tabuleiro será preenchido via JavaScript -->
+        </div>
+
+        <div class="game-controls">
+            <div class="dice" onclick="rolarDado()">
+                🎲
+            </div>
+            <div class="current-player">
+                Vez do Jogador: <span id="currentPlayer">1</span>
+            </div>
+            <button class="btn btn-game" onclick="iniciarJogo()">
+                Começar Jogo
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Personagem -->
+    <div class="modal fade" id="characterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Escolhe o Teu Personagem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="characterOptions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Projeto -->
+    <div class="modal fade" id="projetoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Projeto!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="projetoConteudo"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-game" onclick="aceitarProjeto()">Aceitar Projeto</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Recusar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Evento -->
+    <div class="modal fade" id="eventoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Evento Especial!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="eventoConteudo"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-game" onclick="aceitarEvento()">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const areas = [
+            { nome: "Escola", icone: "🏫" },
+            { nome: "Parque", icone: "🌳" },
+            { nome: "Mercado", icone: "🏪" },
+            { nome: "Hospital", icone: "🏥" },
+            { nome: "Biblioteca", icone: "📚" },
+            { nome: "Centro Comunitário", icone: "🏛️" }
+        ];
+
+        const recursos = [
+            { nome: "Materiais", icone: "🏗️" },
+            { nome: "Alimentos", icone: "🍎" },
+            { nome: "Voluntários", icone: "👥" }
+        ];
+
+        const desafios = [
+            { 
+                nome: "Dia de Voluntariado Comunitário",
+                icone: "🤝",
+                descricao: "Organiza uma ação de voluntariado com outros jogadores!",
+                requisitos: { voluntarios: 2 },
+                recompensa: { voluntarios: 3, alimentos: 2 },
+                tarefa: {
+                    tipo: "quiz",
+                    descricao: "Responde à pergunta sobre gestão de voluntários",
+                    pergunta: "Qual é a melhor estratégia para organizar uma equipe de voluntários?",
+                    opcoes: [
+                        "Deixar cada um fazer o que quiser",
+                        "Criar grupos organizados com líderes e objetivos claros",
+                        "Não fazer reuniões de planejamento",
+                        "Ignorar as habilidades individuais"
+                    ],
+                    respostaCorreta: 1
+                }
+            },
+            { 
+                nome: "Feira de Trocas",
+                icone: "🎪",
+                descricao: "Organiza uma feira de trocas sustentável!",
+                requisitos: { materiais: 1, alimentos: 1 },
+                recompensa: { materiais: 2, alimentos: 2 },
+                tarefa: {
+                    tipo: "memoria",
+                    descricao: "Encontre os pares de produtos sustentáveis",
+                    pares: [
+                        { id: 1, nome: "Roupas Usadas", imagem: "👕" },
+                        { id: 2, nome: "Livros", imagem: "📚" },
+                        { id: 3, nome: "Brinquedos", imagem: "🧸" },
+                        { id: 4, nome: "Artesanato", imagem: "🎨" }
+                    ]
+                }
+            },
+            { 
+                nome: "Projeto Colaborativo",
+                icone: "🏗️",
+                descricao: "Desenvolve um projeto de melhoria comunitária!",
+                requisitos: { materiais: 3, voluntarios: 2 },
+                recompensa: { materiais: 4, voluntarios: 3, alimentos: 2 },
+                tarefa: {
+                    tipo: "conexoes",
+                    descricao: "Conecte as necessidades com as soluções apropriadas",
+                    pares: [
+                        { necessidade: "Falta de áreas verdes", solucao: "Criar jardim comunitário" },
+                        { necessidade: "Lixo nas ruas", solucao: "Instalar lixeiras seletivas" },
+                        { necessidade: "Crianças sem atividades", solucao: "Organizar oficinas educativas" },
+                        { necessidade: "Idosos solitários", solucao: "Criar centro de convivência" }
+                    ]
+                }
+            },
+            {
+                nome: "Horta Comunitária",
+                icone: "🌱",
+                descricao: "Cria uma horta sustentável para a comunidade!",
+                requisitos: { materiais: 2, voluntarios: 2 },
+                recompensa: { alimentos: 4, voluntarios: 1 },
+                tarefa: {
+                    tipo: "puzzle",
+                    descricao: "Organize os elementos da horta nas categorias corretas",
+                    itens: [
+                        { nome: "Alface", categoria: "vegetais" },
+                        { nome: "Tomate", categoria: "vegetais" },
+                        { nome: "Composto", categoria: "insumos" },
+                        { nome: "Regador", categoria: "ferramentas" },
+                        { nome: "Pá", categoria: "ferramentas" },
+                        { nome: "Adubo", categoria: "insumos" }
+                    ]
+                }
+            },
+            {
+                nome: "Biblioteca Comunitária",
+                icone: "📚",
+                descricao: "Organiza uma biblioteca para a comunidade!",
+                requisitos: { materiais: 4, voluntarios: 3 },
+                recompensa: { pontos: 5, voluntarios: 2 },
+                tarefa: {
+                    tipo: "sequencia",
+                    descricao: "Organize as etapas para criar a biblioteca comunitária",
+                    etapas: [
+                        "Catalogar os livros recebidos",
+                        "Organizar as estantes por categoria",
+                        "Criar sistema de empréstimo",
+                        "Treinar voluntários",
+                        "Inaugurar o espaço"
+                    ]
+                }
+            }
+        ];
+
+        const personagens = [
+            {
+                nome: "Agricultor",
+                habilidade: "Fornece 2 alimentos extras",
+                icone: "👨‍🌾",
+                emoji: "👨‍🌾",
+                usarHabilidade: () => atualizarRecursos('alimentos', 2)
+            },
+            {
+                nome: "Construtor",
+                habilidade: "Reduz custos de materiais em 2",
+                icone: "👷",
+                emoji: "👷",
+                usarHabilidade: () => {
+                    const projeto = projetos[Math.floor(Math.random() * projetos.length)];
+                    if (projeto.requisitos.materiais) {
+                        projeto.requisitos.materiais -= 2;
+                    }
+                }
+            },
+            {
+                nome: "Professor",
+                habilidade: "Ganha 2 voluntários extras",
+                icone: "👨‍🏫",
+                emoji: "👨‍🏫",
+                usarHabilidade: () => atualizarRecursos('voluntarios', 2)
+            },
+            {
+                nome: "Médico",
+                habilidade: "Cura recursos perdidos",
+                icone: "👨‍⚕️",
+                emoji: "👨‍⚕️",
+                usarHabilidade: () => {
+                    const jogador = jogadores[jogadorAtual];
+                    Object.keys(jogador.recursos).forEach(recurso => {
+                        if (jogador.recursos[recurso] < 3) {
+                            jogador.recursos[recurso] = 3;
+                        }
+                    });
+                }
+            }
+        ];
+
+        const projetos = [
+            {
+                nome: "Construir um Parque",
+                requisitos: { materiais: 5, voluntarios: 3 },
+                beneficios: "Melhora a qualidade de vida na comunidade",
+                pontos: 10
+            },
+            {
+                nome: "Organizar uma Feira",
+                requisitos: { alimentos: 4, materiais: 2 },
+                beneficios: "Promove a economia local",
+                pontos: 8
+            },
+            {
+                nome: "Reformar a Escola",
+                requisitos: { materiais: 6, voluntarios: 4 },
+                beneficios: "Melhora a educação",
+                pontos: 12
+            }
+        ];
+
+        const eventos = [
+            {
+                nome: "Dia de Voluntariado",
+                descricao: "Ganhaste uma ficha de voluntário extra!",
+                acao: () => atualizarRecursos('voluntarios', 1)
+            },
+            {
+                nome: "Doação de Materiais",
+                descricao: "Uma empresa local doou-te materiais de construção!",
+                acao: () => atualizarRecursos('materiais', 2)
+            },
+            {
+                nome: "Feira de Alimentos",
+                descricao: "A feira local foi um sucesso! Ganhaste alimentos extras!",
+                acao: () => atualizarRecursos('alimentos', 2)
+            }
+        ];
+
+        const missoesSecretas = [
+            "Ajuda a construir o parque sem revelares a tua missão",
+            "Completa um projeto usando a tua habilidade especial",
+            "Ganha 5 pontos extras num único projeto"
+        ];
+
+        let jogadores = [];
+        let jogadorAtual = 0;
+        let tabuleiro = [];
+        let posicoesJogadores = [];
+
+        const characterModal = new bootstrap.Modal(document.getElementById('characterModal'));
+        const projetoModal = new bootstrap.Modal(document.getElementById('projetoModal'));
+        const eventoModal = new bootstrap.Modal(document.getElementById('eventoModal'));
+
+        function criarTabuleiro() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            // Criar células do tabuleiro
+            for (let i = 0; i < 11; i++) {
+                for (let j = 0; j < 11; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell';
+                    
+                    // Definir células especiais
+                    if ((i === 0 || i === 10) && (j === 0 || j === 10)) {
+                        cell.className += ' corner';
+                        cell.textContent = 'Início';
+                    } else if (i === 0 || i === 10 || j === 0 || j === 10) {
+                        const tipo = Math.random();
+                        if (tipo < 0.3) {
+                            cell.className += ' project';
+                            cell.textContent = 'Projeto';
+                        } else if (tipo < 0.5) {
+                            cell.className += ' event';
+                            cell.textContent = 'Evento';
+                        } else if (tipo < 0.7) {
+                            cell.className += ' area';
+                            const area = areas[Math.floor(Math.random() * areas.length)];
+                            cell.innerHTML = `${area.icone}<br>${area.nome}`;
+                        } else if (tipo < 0.85) {
+                            cell.className += ' recursos';
+                            const recurso = recursos[Math.floor(Math.random() * recursos.length)];
+                            cell.innerHTML = `${recurso.icone}<br>${recurso.nome}`;
+                        } else {
+                            cell.className += ' desafio';
+                            const desafio = desafios[Math.floor(Math.random() * desafios.length)];
+                            cell.innerHTML = `${desafio.icone}<br>${desafio.nome}`;
+                        }
+                    } else {
+                        const tipo = Math.random();
+                        if (tipo < 0.3) {
+                            cell.className += ' area';
+                            const area = areas[Math.floor(Math.random() * areas.length)];
+                            cell.innerHTML = `${area.icone}<br>${area.nome}`;
+                        } else if (tipo < 0.5) {
+                            cell.className += ' recursos';
+                            const recurso = recursos[Math.floor(Math.random() * recursos.length)];
+                            cell.innerHTML = `${recurso.icone}<br>${recurso.nome}`;
+                        } else {
+                            cell.className += ' desafio';
+                            const desafio = desafios[Math.floor(Math.random() * desafios.length)];
+                            cell.innerHTML = `${desafio.icone}<br>${desafio.nome}`;
+                        }
+                    }
+                    
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function iniciarJogo() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.querySelector('.game-container').style.display = 'grid';
+            
+            const numJogadores = prompt('Quantos jogadores vão participar? (2-4)');
+            if (numJogadores && numJogadores >= 2 && numJogadores <= 4) {
+                jogadores = Array(parseInt(numJogadores)).fill(null);
+                posicoesJogadores = Array(parseInt(numJogadores)).fill(0);
+                mostrarSelecaoPersonagem();
+                criarTabuleiro();
+                atualizarListaJogadores();
+            }
+        }
+
+        function mostrarSelecaoPersonagem() {
+            const options = document.getElementById('characterOptions');
+            options.innerHTML = personagens.map(p => `
+                <div class="character-card" onclick="selecionarPersonagem('${p.nome}')">
+                    <div class="area-icon">${p.icone}</div>
+                    <h4>${p.nome}</h4>
+                    <p>${p.habilidade}</p>
+                </div>
+            `).join('');
+            characterModal.show();
+        }
+
+        function selecionarPersonagem(nome) {
+            jogadores[jogadorAtual] = {
+                ...personagens.find(p => p.nome === nome),
+                recursos: {
+                    materiais: 3,
+                    alimentos: 3,
+                    voluntarios: 3
+                },
+                pontos: 0,
+                habilidadeUsada: false
+            };
+            
+            jogadorAtual++;
+            
+            if (jogadorAtual < jogadores.length) {
+                mostrarSelecaoPersonagem();
+            } else {
+                characterModal.hide();
+                jogadorAtual = 0;
+                atualizarJogadorAtual();
+            }
+        }
+
+        function atualizarListaJogadores() {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = jogadores.map((jogador, index) => `
+                <div class="player-token" style="background-color: ${getCorJogador(index)}">
+                    ${index + 1}
+                </div>
+            `).join('');
+        }
+
+        function getCorJogador(index) {
+            const cores = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+            return cores[index % cores.length];
+        }
+
+        function atualizarJogadorAtual() {
+            document.getElementById('currentPlayer').textContent = jogadorAtual + 1;
+            document.getElementById('currentPlayer').style.color = getCorJogador(jogadorAtual);
+        }
+
+        function rolarDado() {
+            const resultado = Math.floor(Math.random() * 6) + 1;
+            document.querySelector('.dice').textContent = resultado;
+            moverJogador(resultado);
+            
+            if (Math.random() < 0.2) {
+                mostrarEvento();
+            }
+        }
+
+        function moverJogador(passos) {
+            const jogador = jogadores[jogadorAtual];
+            const posicaoAtual = posicoesJogadores[jogadorAtual];
+            const totalCelulas = 40; // Total de células no perímetro do tabuleiro
+            let novaPosicao = (posicaoAtual + passos);
+            
+            // Verificar se chegou ao fim do tabuleiro
+            if (novaPosicao >= totalCelulas) {
+                mostrarCelebracaoFinal(jogador);
+                novaPosicao = totalCelulas - 1; // Mantém na última posição
+            }
+            
+            // Remover jogador da posição atual
+            const celulas = document.querySelectorAll('.board-cell');
+            celulas.forEach(celula => {
+                const jogadoresNaCelula = celula.querySelectorAll('.player');
+                jogadoresNaCelula.forEach(p => {
+                    if (p.dataset.jogador === jogadorAtual.toString()) {
+                        p.remove();
+                    }
+                });
+            });
+            
+            // Adicionar jogador na nova posição
+            const novaCelula = celulas[novaPosicao];
+            const jogadorElement = document.createElement('div');
+            jogadorElement.className = 'player';
+            jogadorElement.textContent = jogador.emoji;
+            jogadorElement.dataset.jogador = jogadorAtual.toString();
+            novaCelula.appendChild(jogadorElement);
+            
+            posicoesJogadores[jogadorAtual] = novaPosicao;
+            
+            // Verificar tipo de célula
+            if (novaCelula.classList.contains('project')) {
+                mostrarProjeto(projetos[Math.floor(Math.random() * projetos.length)]);
+            } else if (novaCelula.classList.contains('event')) {
+                mostrarEvento();
+            } else if (novaCelula.classList.contains('recursos')) {
+                const recurso = recursos[Math.floor(Math.random() * recursos.length)];
+                jogador.recursos[recurso.nome.toLowerCase()] += 1;
+                alert(`Ganhaste 1 ${recurso.nome}!`);
+            } else if (novaCelula.classList.contains('desafio')) {
+                const desafio = desafios[Math.floor(Math.random() * desafios.length)];
+                mostrarDesafio(desafio);
+            }
+            
+            atualizarPainelJogadores();
+            
+            // Próximo jogador
+            jogadorAtual = (jogadorAtual + 1) % jogadores.length;
+            atualizarJogadorAtual();
+        }
+
+        function mostrarEvento() {
+            const evento = eventos[Math.floor(Math.random() * eventos.length)];
+            document.getElementById('eventoConteudo').innerHTML = `
+                <h4>${evento.nome}</h4>
+                <p>${evento.descricao}</p>
+            `;
+            eventoModal.show();
+        }
+
+        function aceitarEvento() {
+            const evento = eventos[Math.floor(Math.random() * eventos.length)];
+            evento.acao();
+            eventoModal.hide();
+            atualizarRecursos();
+        }
+
+        function mostrarProjeto(projeto) {
+            const conteudo = document.getElementById('projetoConteudo');
+            conteudo.innerHTML = `
+                <h4>${projeto.nome}</h4>
+                <p>Requisitos:</p>
+                <ul>
+                    ${Object.entries(projeto.requisitos).map(([recurso, quantidade]) => 
+                        `<li>${quantidade} ${recurso}</li>`
+                    ).join('')}
+                </ul>
+                <p>Benefícios: ${projeto.beneficios}</p>
+                <p>Pontos: ${projeto.pontos}</p>
+                <button class="btn btn-game mt-3" onclick="mostrarPartilhaRecursos(${JSON.stringify(projeto)})">
+                    Partilhar Recursos
+                </button>
+            `;
+            projetoModal.show();
+        }
+
+        function mostrarPartilhaRecursos(projeto) {
+            const overlay = document.createElement('div');
+            overlay.className = 'share-resources-overlay';
+            overlay.style.display = 'flex';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '1000';
+            
+            const modal = document.createElement('div');
+            modal.className = 'share-resources-modal';
+            
+            const jogadorAtualObj = jogadores[jogadorAtual];
+            const outrosJogadores = jogadores.filter((j, index) => index !== jogadorAtual);
+            
+            modal.innerHTML = `
+                <h4>Solicitar Recursos para ${projeto.nome}</h4>
+                <p>Recursos necessários:</p>
+                <div class="recursos-necessarios">
+                    ${Object.entries(projeto.requisitos).map(([recurso, quantidade]) => `
+                        <div class="resource-item">
+                            ${recurso}: ${quantidade}
+                        </div>
+                    `).join('')}
+                </div>
+                <p>Escolha um jogador para solicitar recursos:</p>
+                <div class="share-options">
+                    ${outrosJogadores.map((jogador, index) => `
+                        <div class="share-option" onclick="solicitarRecursos(${jogadores.indexOf(jogador)}, '${projeto.nome}')">
+                            <div class="player-character">${jogador.emoji} ${jogador.nome}</div>
+                            <div class="player-resources">
+                                <div class="resource-item">🏗️ Materiais: ${jogador.recursos.materiais}</div>
+                                <div class="resource-item">🍎 Alimentos: ${jogador.recursos.alimentos}</div>
+                                <div class="resource-item">👥 Voluntários: ${jogador.recursos.voluntarios}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn btn-secondary mt-3" onclick="fecharPartilhaRecursos()">Cancelar</button>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function solicitarRecursos(jogadorIndex, projetoNome) {
+            const jogadorAtualObj = jogadores[jogadorAtual];
+            const jogadorSelecionado = jogadores[jogadorIndex];
+            const projeto = projetos.find(p => p.nome === projetoNome);
+            
+            if (!projeto) {
+                alert('Erro: Projeto não encontrado');
+                return;
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'share-resources-overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'share-resources-modal';
+            
+            modal.innerHTML = `
+                <h4>Solicitar Recursos de ${jogadorSelecionado.nome}</h4>
+                <div class="player-resources">
+                    <h5>Recursos necessários para o projeto:</h5>
+                    ${Object.entries(projeto.requisitos).map(([recurso, quantidade]) => `
+                        <div class="resource-item">
+                            ${recurso}: 
+                            <input type="number" class="resource-share-input" 
+                                min="0" max="${jogadorSelecionado.recursos[recurso]}" 
+                                value="0" data-recurso="${recurso}">
+                            <span>(Disponível: ${jogadorSelecionado.recursos[recurso]})</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="share-actions">
+                    <button class="btn btn-game mt-3" onclick="enviarSolicitacao(${jogadorIndex}, '${projetoNome}')">
+                        Enviar Solicitação
+                    </button>
+                    <button class="btn btn-secondary mt-3" onclick="fecharPartilhaRecursos()">Cancelar</button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function enviarSolicitacao(jogadorIndex, projetoNome) {
+            const jogadorAtualObj = jogadores[jogadorAtual];
+            const jogadorSelecionado = jogadores[jogadorIndex];
+            const projeto = projetos.find(p => p.nome === projetoNome);
+            
+            if (!projeto) {
+                alert('Erro: Projeto não encontrado');
+                return;
+            }
+            
+            const recursosRequisitados = {};
+            let solicitacaoValida = false;
+            
+            Object.entries(projeto.requisitos).forEach(([recurso, quantidade]) => {
+                const input = document.querySelector(`input[data-recurso="${recurso}"]`);
+                const quantidadeSolicitada = parseInt(input.value) || 0;
+                
+                if (quantidadeSolicitada > 0) {
+                    recursosRequisitados[recurso] = quantidadeSolicitada;
+                    solicitacaoValida = true;
+                }
+            });
+            
+            if (!solicitacaoValida) {
+                alert('Por favor, solicite pelo menos um recurso.');
+                return;
+            }
+            
+            mostrarSolicitacaoRecursos(jogadorIndex, projetoNome, recursosRequisitados);
+        }
+
+        function mostrarSolicitacaoRecursos(jogadorIndex, projetoNome, recursosRequisitados) {
+            const jogadorAtualObj = jogadores[jogadorAtual];
+            const jogadorSelecionado = jogadores[jogadorIndex];
+            const projeto = projetos.find(p => p.nome === projetoNome);
+            
+            if (!projeto) {
+                alert('Erro: Projeto não encontrado');
+                return;
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'share-resources-overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'share-resources-modal';
+            
+            modal.innerHTML = `
+                <h4>Solicitação de Recursos</h4>
+                <p>${jogadorAtualObj.nome} está solicitando recursos para o projeto "${projeto.nome}"</p>
+                <div class="player-resources">
+                    <h5>Recursos solicitados:</h5>
+                    ${Object.entries(recursosRequisitados).map(([recurso, quantidade]) => `
+                        <div class="resource-item">
+                            ${recurso}: ${quantidade}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="share-actions">
+                    <button class="btn btn-game mt-3" onclick="aprovarSolicitacao(${jogadorIndex}, '${projetoNome}', ${JSON.stringify(recursosRequisitados).replace(/"/g, '&quot;')})">
+                        Aprovar
+                    </button>
+                    <button class="btn btn-danger mt-3" onclick="rejeitarSolicitacao()">
+                        Rejeitar
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function aprovarSolicitacao(jogadorIndex, projetoNome, recursosRequisitados) {
+            const jogadorAtualObj = jogadores[jogadorAtual];
+            const jogadorSelecionado = jogadores[jogadorIndex];
+            const projeto = projetos.find(p => p.nome === projetoNome);
+            
+            if (!projeto) {
+                alert('Erro: Projeto não encontrado');
+                return;
+            }
+            
+            Object.entries(recursosRequisitados).forEach(([recurso, quantidade]) => {
+                if (jogadorSelecionado.recursos[recurso] >= quantidade) {
+                    jogadorSelecionado.recursos[recurso] -= quantidade;
+                    jogadorAtualObj.recursos[recurso] += quantidade;
+                }
+            });
+            
+            alert(`${jogadorSelecionado.nome} aprovou a doação de recursos!`);
+            fecharPartilhaRecursos();
+            atualizarPainelJogadores();
+            
+            // Verificar se agora tem recursos suficientes para o projeto
+            if (verificarRecursos(projeto.requisitos, jogadorAtualObj.recursos)) {
+                if (confirm('Agora você tem recursos suficientes! Deseja completar o projeto?')) {
+                    Object.entries(projeto.requisitos).forEach(([recurso, quantidade]) => {
+                        jogadorAtualObj.recursos[recurso] -= quantidade;
+                    });
+                    jogadorAtualObj.pontos += projeto.pontos;
+                    mostrarCelebracao(projeto);
+                    atualizarPainelJogadores();
+                }
+            }
+        }
+
+        function rejeitarSolicitacao() {
+            alert('A solicitação de recursos foi rejeitada.');
+            fecharPartilhaRecursos();
+        }
+
+        function fecharPartilhaRecursos() {
+            const overlay = document.querySelector('.share-resources-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        function aceitarProjeto() {
+            const projeto = projetos[Math.floor(Math.random() * projetos.length)];
+            const jogador = jogadores[jogadorAtual];
+            
+            if (verificarRecursos(projeto.requisitos, jogador.recursos)) {
+                Object.entries(projeto.requisitos).forEach(([recurso, quantidade]) => {
+                    jogador.recursos[recurso] -= quantidade;
+                });
+                
+                jogador.pontos += projeto.pontos;
+                
+                mostrarCelebracao(projeto);
+                projetoModal.hide();
+                atualizarRecursos();
+            } else {
+                alert('Não tens recursos suficientes para este projeto!');
+            }
+        }
+
+        function verificarRecursos(requisitos, recursos) {
+            for (const [recurso, quantidade] of Object.entries(requisitos)) {
+                if (recursos[recurso] < quantidade) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function atualizarRecursos() {
+            atualizarPainelJogadores();
+        }
+
+        function atualizarPainelJogadores() {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = jogadores.map((jogador, index) => `
+                <div class="player-card ${index === jogadorAtual ? 'active' : ''}">
+                    <h4>
+                        <span class="player-token" style="background-color: ${getCorJogador(index)}">
+                            ${index + 1}
+                        </span>
+                        ${jogador.emoji} ${jogador.nome}
+                    </h4>
+                    <div class="player-resources">
+                        <div class="resource-item">
+                            🏗️ Materiais: <span>${jogador.recursos.materiais}</span>
+                        </div>
+                        <div class="resource-item">
+                            🍎 Alimentos: <span>${jogador.recursos.alimentos}</span>
+                        </div>
+                        <div class="resource-item">
+                            👥 Voluntários: <span>${jogador.recursos.voluntarios}</span>
+                        </div>
+                        <div class="resource-item">
+                            ⭐ Pontos: <span>${jogador.pontos}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function mostrarDesafio(desafio) {
+            const overlay = document.createElement('div');
+            overlay.className = 'share-resources-overlay';
+            overlay.style.display = 'flex';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '1000';
+            
+            const modal = document.createElement('div');
+            modal.className = 'share-resources-modal';
+            
+            modal.innerHTML = `
+                <h4>${desafio.icone} ${desafio.nome}</h4>
+                <p>${desafio.descricao}</p>
+                <div class="player-resources">
+                    <h5>Requisitos:</h5>
+                    ${Object.entries(desafio.requisitos).map(([recurso, quantidade]) => 
+                        `<div class="resource-item">${recurso}: ${quantidade}</div>`
+                    ).join('')}
+                    <h5>Recompensa:</h5>
+                    ${Object.entries(desafio.recompensa).map(([recurso, quantidade]) => 
+                        `<div class="resource-item">${recurso}: +${quantidade}</div>`
+                    ).join('')}
+                </div>
+                <button class="btn btn-game mt-3" onclick="iniciarTarefa('${desafio.nome}')">
+                    Aceitar Desafio
+                </button>
+                <button class="btn btn-secondary mt-3" onclick="fecharPartilhaRecursos()">Recusar</button>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function verificarResposta(respostaIndex) {
+            const desafio = desafios.find(d => d.tarefa.tipo === 'quiz');
+            if (desafio && respostaIndex === desafio.tarefa.respostaCorreta) {
+                completarDesafio(desafio.nome);
+            } else {
+                alert('Resposta incorreta! Tenta novamente.');
+            }
+        }
+
+        // Funções para gerenciar o puzzle
+        function inicializarPuzzle() {
+            const items = document.querySelectorAll('.puzzle-item');
+            const areas = document.querySelectorAll('.puzzle-area');
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            areas.forEach(area => {
+                area.addEventListener('dragover', handleDragOver);
+                area.addEventListener('dragleave', handleDragLeave);
+                area.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.categoria);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.puzzle-area').forEach(area => {
+                area.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const categoria = e.dataTransfer.getData('text/plain');
+            const area = e.currentTarget;
+            const item = document.querySelector('.dragging');
+            area.classList.remove('drag-over');
+
+            if (item && area.closest('.puzzle-categoria').dataset.categoria === categoria) {
+                area.appendChild(item);
+                item.classList.remove('dragging');
+                verificarPuzzleCompleto();
+            }
+        }
+
+        function verificarPuzzleCompleto() {
+            const categorias = document.querySelectorAll('.puzzle-categoria');
+            let completo = true;
+
+            categorias.forEach(categoria => {
+                const areaCategoria = categoria.dataset.categoria;
+                const items = categoria.querySelectorAll('.puzzle-item');
+                
+                items.forEach(item => {
+                    if (item.dataset.categoria !== areaCategoria) {
+                        completo = false;
+                    }
+                });
+            });
+
+            if (completo) {
+                const desafio = desafios.find(d => d.tarefa.tipo === 'puzzle');
+                if (desafio) {
+                    setTimeout(() => {
+                        completarDesafio(desafio.nome);
+                    }, 500);
+                }
+            }
+        }
+
+        // Funções para gerenciar a sequência
+        function inicializarSequencia() {
+            const container = document.querySelector('.sequencia-area');
+            const items = container.querySelectorAll('.sequencia-item');
+
+            items.forEach(item => {
+                item.setAttribute('draggable', 'true');
+                item.addEventListener('dragstart', handleSequenciaDragStart);
+                item.addEventListener('dragend', handleSequenciaDragEnd);
+            });
+
+            container.addEventListener('dragover', handleSequenciaDragOver);
+            container.addEventListener('drop', handleSequenciaDrop);
+        }
+
+        function handleSequenciaDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+        }
+
+        function handleSequenciaDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleSequenciaDragOver(e) {
+            e.preventDefault();
+            const container = e.currentTarget;
+            const draggingItem = document.querySelector('.sequencia-item.dragging');
+            if (!draggingItem) return;
+
+            const siblings = [...container.querySelectorAll('.sequencia-item:not(.dragging)')];
+            const nextSibling = siblings.find(sibling => {
+                const box = sibling.getBoundingClientRect();
+                const offset = e.clientY - box.top - box.height / 2;
+                return offset < 0;
+            });
+
+            if (nextSibling) {
+                container.insertBefore(draggingItem, nextSibling);
+            } else {
+                container.appendChild(draggingItem);
+            }
+        }
+
+        function handleSequenciaDrop(e) {
+            e.preventDefault();
+            verificarSequenciaCorreta();
+        }
+
+        function verificarSequenciaCorreta() {
+            const items = [...document.querySelectorAll('.sequencia-item')];
+            const desafio = desafios.find(d => d.tarefa.tipo === 'sequencia');
+            
+            if (desafio) {
+                let correto = true;
+                items.forEach((item, index) => {
+                    const itemIndex = parseInt(item.dataset.index);
+                    if (itemIndex === index) {
+                        item.classList.remove('incorrect');
+                        item.classList.add('correct');
+                    } else {
+                        item.classList.remove('correct');
+                        item.classList.add('incorrect');
+                        correto = false;
+                    }
+                });
+
+                if (correto) {
+                    setTimeout(() => {
+                        completarDesafio(desafio.nome);
+                    }, 1000);
+                }
+            }
+        }
+
+        function completarDesafio(nomeDesafio) {
+            const jogador = jogadores[jogadorAtual];
+            const desafio = desafios.find(d => d.nome === nomeDesafio);
+            
+            if (desafio) {
+                // Deduzir recursos
+                Object.entries(desafio.requisitos).forEach(([recurso, quantidade]) => {
+                    jogador.recursos[recurso] -= quantidade;
+                });
+
+                // Adicionar recompensas
+                Object.entries(desafio.recompensa).forEach(([recurso, quantidade]) => {
+                    if (recurso === 'pontos') {
+                        jogador.pontos += quantidade;
+                    } else {
+                        jogador.recursos[recurso] += quantidade;
+                    }
+                });
+
+                alert(`Parabéns! Completaste o desafio e recebeste:\n${Object.entries(desafio.recompensa).map(([recurso, quantidade]) => 
+                    `+${quantidade} ${recurso}`
+                ).join('\n')}`);
+            }
+            
+            fecharPartilhaRecursos();
+            atualizarPainelJogadores();
+        }
+
+        // Inicializar as tarefas quando o modal é aberto
+        function iniciarTarefa(nomeDesafio) {
+            const jogador = jogadores[jogadorAtual];
+            const desafio = desafios.find(d => d.nome === nomeDesafio);
+            
+            if (!desafio || !verificarRecursos(desafio.requisitos, jogador.recursos)) {
+                alert('Não tens recursos suficientes para este desafio!');
+                fecharPartilhaRecursos();
+                return;
+            }
+            
+            const modal = document.querySelector('.share-resources-modal');
+            modal.innerHTML = `
+                <h4>${desafio.icone} ${desafio.nome}</h4>
+                <p>${desafio.tarefa.descricao}</p>
+                ${renderizarTarefa(desafio.tarefa)}
+            `;
+
+            // Inicializar interações baseado no tipo de tarefa
+            if (desafio.tarefa.tipo === 'puzzle') {
+                inicializarPuzzle();
+            } else if (desafio.tarefa.tipo === 'sequencia') {
+                inicializarSequencia();
+            } else if (desafio.tarefa.tipo === 'memoria') {
+                inicializarMemoria();
+            } else if (desafio.tarefa.tipo === 'conexoes') {
+                inicializarConexoes();
+            }
+        }
+
+        function renderizarTarefa(tarefa) {
+            switch (tarefa.tipo) {
+                case 'quiz':
+                    return `
+                        <div class="quiz-container">
+                            <p class="quiz-pergunta">${tarefa.pergunta}</p>
+                            <div class="quiz-opcoes">
+                                ${tarefa.opcoes.map((opcao, index) => `
+                                    <button class="btn btn-game mt-2" onclick="verificarResposta(${index})">
+                                        ${opcao}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                case 'memoria':
+                    return `
+                        <div class="memoria-container">
+                            <div class="memoria-grid">
+                                ${tarefa.pares.map(par => `
+                                    <div class="memoria-card" data-id="${par.id}">
+                                        <div class="memoria-card-inner">
+                                            <div class="memoria-card-front">❓</div>
+                                            <div class="memoria-card-back">
+                                                <div class="memoria-imagem">${par.imagem}</div>
+                                                <div class="memoria-nome">${par.nome}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${tarefa.pares.map(par => `
+                                    <div class="memoria-card" data-id="${par.id}">
+                                        <div class="memoria-card-inner">
+                                            <div class="memoria-card-front">❓</div>
+                                            <div class="memoria-card-back">
+                                                <div class="memoria-imagem">${par.imagem}</div>
+                                                <div class="memoria-nome">${par.nome}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                case 'conexoes':
+                    return `
+                        <div class="conexoes-container">
+                            <div class="conexoes-colunas">
+                                <div class="conexoes-coluna necessidades">
+                                    ${tarefa.pares.map((par, index) => `
+                                        <div class="conexao-item" draggable="true" data-index="${index}">
+                                            ${par.necessidade}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="conexoes-coluna solucoes">
+                                    ${tarefa.pares.map((par, index) => `
+                                        <div class="conexao-slot" data-index="${index}">
+                                            ${par.solucao}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'puzzle':
+                    return `
+                        <div class="puzzle-container">
+                            <div class="puzzle-categorias">
+                                ${[...new Set(tarefa.itens.map(item => item.categoria))].map(categoria => `
+                                    <div class="puzzle-categoria" data-categoria="${categoria}">
+                                        <h5>${categoria}</h5>
+                                        <div class="puzzle-area"></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="puzzle-itens">
+                                ${tarefa.itens.map(item => `
+                                    <div class="puzzle-item" draggable="true" data-categoria="${item.categoria}">
+                                        ${item.nome}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                case 'sequencia':
+                    return `
+                        <div class="sequencia-container">
+                            <div class="sequencia-area">
+                                ${tarefa.etapas.map((etapa, index) => `
+                                    <div class="sequencia-item" draggable="true" data-index="${index}">
+                                        ${etapa}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+            }
+        }
+
+        function mostrarInstrucoes() {
+            const instrucoes = `
+                <h3>Como Jogar:</h3>
+                <ol>
+                    <li>Escolha o número de jogadores (2-4)</li>
+                    <li>Selecione seu personagem especial</li>
+                    <li>Role o dado para mover-se pelo tabuleiro</li>
+                    <li>Complete desafios e projetos</li>
+                    <li>Coopere com outros jogadores</li>
+                    <li>Ganhe pontos construindo a comunidade</li>
+                </ol>
+                <h3>Tipos de Casas:</h3>
+                <ul>
+                    <li>🏫 Áreas: Locais importantes da comunidade</li>
+                    <li>🎯 Desafios: Complete tarefas para ganhar recompensas</li>
+                    <li>🏆 Projetos: Construa algo especial com outros jogadores</li>
+                    <li>🎁 Recursos: Colete materiais, alimentos e voluntários</li>
+                </ul>
+            `;
+            
+            const modal = document.createElement('div');
+            modal.className = 'share-resources-modal';
+            modal.innerHTML = `
+                <h4>Instruções do Jogo</h4>
+                ${instrucoes}
+                <button class="btn btn-game mt-3" onclick="this.parentElement.parentElement.remove()">Fechar</button>
+            `;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'share-resources-overlay';
+            overlay.style.display = 'flex';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '1000';
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function mostrarCelebracao(projeto) {
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            
+            let icone = '';
+            let mensagem = '';
+            
+            switch(projeto.nome) {
+                case "Construir um Parque":
+                    icone = "🎪";
+                    mensagem = "Parabéns! Construíste um parque infantil incrível para a comunidade! Agora as crianças têm um lugar seguro e divertido para brincar.";
+                    break;
+                case "Organizar uma Feira":
+                    icone = "🎪";
+                    mensagem = "Excelente trabalho! A feira foi um sucesso total! A comunidade está mais unida e a economia local está a crescer.";
+                    break;
+                case "Reformar a Escola":
+                    icone = "🏫";
+                    mensagem = "Fantástico! A escola está renovada e pronta para receber os alunos! A educação é a chave para o futuro da comunidade.";
+                    break;
+                default:
+                    icone = "🎉";
+                    mensagem = "Parabéns! Completaste com sucesso este projeto importante para a comunidade!";
+            }
+            
+            overlay.innerHTML = `
+                <div class="celebration-content">
+                    <div class="celebration-icon">${icone}</div>
+                    <h2 class="celebration-title">${projeto.nome} Concluído!</h2>
+                    <p class="celebration-message">${mensagem}</p>
+                    <div class="celebration-ribbon" onclick="cortarFita(this)">
+                        Cortar a Fita
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        function cortarFita(elemento) {
+            elemento.style.transform = 'translateX(-50%) scale(0.8)';
+            elemento.style.opacity = '0';
+            
+            setTimeout(() => {
+                elemento.parentElement.parentElement.remove();
+                alert('Parabéns! O projeto foi inaugurado com sucesso! 🎉');
+            }, 500);
+        }
+
+        function mostrarCelebracaoFinal(jogador) {
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            
+            const vencedor = jogadores.reduce((prev, curr) => 
+                (curr.pontos > prev.pontos) ? curr : prev
+            );
+            
+            const mensagemExtra = jogador === vencedor ? 
+                "És o vencedor do jogo com mais pontos!" : 
+                `O jogador ${vencedor.nome} tem a maior pontuação com ${vencedor.pontos} pontos!`;
+            
+            overlay.innerHTML = `
+                <div class="celebration-content">
+                    <button class="celebration-close" onclick="fecharCelebracao(this)" title="Fechar">×</button>
+                    <div class="celebration-icon">👑</div>
+                    <h2 class="celebration-title">Parabéns ${jogador.nome}!</h2>
+                    <p class="celebration-message">
+                        Chegaste ao fim do jogo! Conseguiste acumular ${jogador.pontos} pontos!<br><br>
+                        ${mensagemExtra}<br><br>
+                        A tua contribuição para a comunidade foi incrível!
+                    </p>
+                    <div class="celebration-stats">
+                        <h3>Teus Recursos Finais:</h3>
+                        <div class="resource-item">🏗️ Materiais: ${jogador.recursos.materiais}</div>
+                        <div class="resource-item">🍎 Alimentos: ${jogador.recursos.alimentos}</div>
+                        <div class="resource-item">👥 Voluntários: ${jogador.recursos.voluntarios}</div>
+                        <div class="resource-item">⭐ Pontos Totais: ${jogador.pontos}</div>
+                    </div>
+                    <button class="btn btn-game mt-4" onclick="reiniciarJogo()">
+                        Jogar Novamente
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        function fecharCelebracao(elemento) {
+            elemento.closest('.celebration-overlay').remove();
+        }
+
+        function reiniciarJogo() {
+            // Limpar o jogo atual
+            jogadores = [];
+            jogadorAtual = 0;
+            tabuleiro = [];
+            posicoesJogadores = [];
+            
+            // Remover overlay de celebração
+            const overlay = document.querySelector('.celebration-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            
+            // Reiniciar o jogo
+            iniciarJogo();
+        }
+
+        // Funções para o jogo da memória
+        function inicializarMemoria() {
+            const cards = document.querySelectorAll('.memoria-card');
+            let hasFlippedCard = false;
+            let lockBoard = false;
+            let firstCard, secondCard;
+            let paresEncontrados = 0;
+
+            function flipCard() {
+                if (lockBoard) return;
+                if (this === firstCard) return;
+
+                this.classList.add('flipped');
+
+                if (!hasFlippedCard) {
+                    hasFlippedCard = true;
+                    firstCard = this;
+                    return;
+                }
+
+                secondCard = this;
+                checkForMatch();
+            }
+
+            function checkForMatch() {
+                const isMatch = firstCard.dataset.id === secondCard.dataset.id;
+                isMatch ? disableCards() : unflipCards();
+            }
+
+            function disableCards() {
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                firstCard.removeEventListener('click', flipCard);
+                secondCard.removeEventListener('click', flipCard);
+                paresEncontrados++;
+
+                if (paresEncontrados === cards.length / 2) {
+                    setTimeout(() => {
+                        const desafio = desafios.find(d => d.tarefa.tipo === 'memoria');
+                        completarDesafio(desafio.nome);
+                    }, 500);
+                }
+
+                resetBoard();
+            }
+
+            function unflipCards() {
+                lockBoard = true;
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    secondCard.classList.remove('flipped');
+                    resetBoard();
+                }, 1000);
+            }
+
+            function resetBoard() {
+                [hasFlippedCard, lockBoard] = [false, false];
+                [firstCard, secondCard] = [null, null];
+            }
+
+            // Embaralhar cartas
+            cards.forEach(card => {
+                const randomPos = Math.floor(Math.random() * cards.length);
+                card.style.order = randomPos;
+                card.addEventListener('click', flipCard);
+            });
+        }
+
+        // Funções para o jogo de conexões
+        function inicializarConexoes() {
+            const items = document.querySelectorAll('.conexao-item');
+            const slots = document.querySelectorAll('.conexao-slot');
+            let conexoesCorretas = 0;
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleConexaoDragStart);
+                item.addEventListener('dragend', handleConexaoDragEnd);
+            });
+
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', handleConexaoDragOver);
+                slot.addEventListener('dragleave', handleConexaoDragLeave);
+                slot.addEventListener('drop', handleConexaoDrop);
+            });
+
+            function handleConexaoDragStart(e) {
+                e.target.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', e.target.dataset.index);
+            }
+
+            function handleConexaoDragEnd(e) {
+                e.target.classList.remove('dragging');
+            }
+
+            function handleConexaoDragOver(e) {
+                e.preventDefault();
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            function handleConexaoDragLeave(e) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            function handleConexaoDrop(e) {
+                e.preventDefault();
+                const slot = e.currentTarget;
+                const item = document.querySelector('.conexao-item.dragging');
+                const itemIndex = item.dataset.index;
+                const slotIndex = slot.dataset.index;
+
+                slot.classList.remove('drag-over');
+
+                if (itemIndex === slotIndex) {
+                    slot.appendChild(item);
+                    slot.classList.add('correto');
+                    conexoesCorretas++;
+
+                    if (conexoesCorretas === slots.length) {
+                        setTimeout(() => {
+                            const desafio = desafios.find(d => d.tarefa.tipo === 'conexoes');
+                            completarDesafio(desafio.nome);
+                        }, 500);
+                    }
+                } else {
+                    slot.classList.add('incorreto');
+                    setTimeout(() => {
+                        slot.classList.remove('incorreto');
+                    }, 1000);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
